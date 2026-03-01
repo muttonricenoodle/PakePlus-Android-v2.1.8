@@ -1,11 +1,1607 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>家庭日志</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 1.5rem;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+        .btn-success {
+            background: #51cf66;
+            color: white;
+        }
+        .btn-warning {
+            background: #ffa94d;
+            color: white;
+        }
+        .btn-small {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+        }
+        .btn-block {
+            width: 100%;
+        }
+        .calendar {
+            width: 100%;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .calendar-header button {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        .calendar-header button:active {
+            background: #e0e0e0;
+        }
+        .calendar-month {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+        }
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            position: relative;
+            transition: all 0.2s;
+            min-height: 36px;
+            padding: 4px 2px;
+            overflow: hidden;
+        }
+        .calendar-day:active {
+            background: #f0f0f0;
+        }
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+        .calendar-day.today {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .calendar-day.selected {
+            outline: 3px solid #667eea;
+        }
+        .calendar-day .day-number {
+            font-weight: 500;
+            line-height: 1;
+        }
+        .calendar-day .day-thumbnails {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1px;
+            margin-top: 2px;
+            justify-content: center;
+            width: 100%;
+        }
+        .calendar-day .thumb-icon {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calendar-day .thumb-icon.text-icon {
+            background: #1976d2;
+        }
+        .calendar-day .thumb-icon.photo-icon {
+            background: #388e3c;
+        }
+        .calendar-day .thumb-icon.video-icon {
+            background: #f57c00;
+        }
+        .calendar-day .thumb-icon.audio-icon {
+            background: #c2185b;
+        }
+        .calendar-day .thumb-icon svg {
+            width: 6px;
+            height: 6px;
+            fill: white;
+        }
+        .calendar-day .thumb-photo {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            object-fit: cover;
+        }
+        .calendar-day.today .thumb-icon.text-icon {
+            background: #90caf9;
+        }
+        .calendar-day.today .thumb-icon.photo-icon {
+            background: #a5d6a7;
+        }
+        .calendar-day.today .thumb-icon.video-icon {
+            background: #ffcc80;
+        }
+        .calendar-day.today .thumb-icon.audio-icon {
+            background: #f48fb1;
+        }
+        .date-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .date-display input[type="date"] {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            outline: none;
+            min-height: 44px;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 12px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            min-height: 44px;
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+        }
+        .tab:active {
+            transform: scale(0.95);
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .input-area {
+            display: none;
+            margin-top: 15px;
+        }
+        .input-area.active {
+            display: block;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+        textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-input-wrapper .btn {
+            width: 100%;
+        }
+        .preview-container {
+            margin-top: 15px;
+        }
+        .preview-container img,
+        .preview-container video {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .entries-list {
+            margin-top: 15px;
+        }
+        .entry {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .entry-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .entry-type {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .type-text { background: #e3f2fd; color: #1976d2; }
+        .type-photo { background: #e8f5e9; color: #388e3c; }
+        .type-video { background: #fff3e0; color: #f57c00; }
+        .type-audio { background: #fce4ec; color: #c2185b; }
+        .entry-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .entry-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .entry-tag {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+        .entry-content {
+            margin-top: 10px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .entry-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .entry-content video {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .entry-content audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .entry-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .entry-actions .btn {
+            flex: 1;
+            min-width: 80px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 44px;
+        }
+        .search-box input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .tag-input-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .tag-input-container input {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 120px;
+            min-height: 44px;
+        }
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        .tag-chip button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0 0 0 4px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+            min-width: 44px;
+            min-height: 44px;
+        }
+        .modal-body textarea {
+            width: 100%;
+            min-height: 150px;
+        }
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .filter-tag {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            min-height: 36px;
+        }
+        .filter-tag:active {
+            transform: scale(0.95);
+        }
+        .filter-tag.active {
+            background: #667eea;
+            color: white;
+        }
+        .recorder-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .recorder-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .recorder-btn.recording {
+            background: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+        .recorder-status {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .recorder-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .recorder-preview {
+            margin-top: 20px;
+        }
+        .recorder-preview audio {
+            width: 100%;
+        }
+        .recorder-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            html {
+                font-size: 15px;
+            }
+            body {
+                padding: 12px;
+            }
+            .card {
+                padding: 15px;
+                border-radius: 12px;
+            }
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            .calendar-day {
+                font-size: 0.85rem;
+                min-height: 32px;
+            }
+            .calendar-day .thumb-icon {
+                width: 8px;
+                height: 8px;
+            }
+            .calendar-day .thumb-photo {
+                width: 12px;
+                height: 12px;
+            }
+            .btn {
+                padding: 10px 18px;
+            }
+            .btn-small {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+            .tabs {
+                gap: 6px;
+            }
+            .tab {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+            textarea {
+                height: 100px;
+                font-size: 0.95rem;
+            }
+            .entry {
+                padding: 12px;
+            }
+            .entry-actions {
+                flex-direction: row;
+            }
+            .entry-actions .btn {
+                flex: 1;
+            }
+            .modal-content {
+                padding: 20px;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            html {
+                font-size: 14px;
+            }
+            body {
+                padding: 8px;
+            }
+            .card {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            h1 {
+                font-size: 1.2rem;
+                margin-bottom: 12px;
+            }
+            .calendar-weekdays {
+                font-size: 0.65rem;
+            }
+            .calendar-days {
+                gap: 2px;
+            }
+            .calendar-day {
+                font-size: 0.8rem;
+                min-height: 28px;
+                border-radius: 6px;
+            }
+            .calendar-day .thumb-icon {
+                width: 6px;
+                height: 6px;
+            }
+            .calendar-day .thumb-photo {
+                width: 10px;
+                height: 10px;
+            }
+            .calendar-header button {
+                padding: 8px 16px;
+                font-size: 1rem;
+            }
+            .calendar-month {
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+            .btn-small {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            .tabs {
+                gap: 4px;
+            }
+            .tab {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+                min-width: 60px;
+            }
+            textarea {
+                height: 90px;
+                padding: 10px;
+            }
+            .date-display {
+                flex-direction: row;
+            }
+            .date-display input[type="date"] {
+                flex: 1;
+                padding: 10px 12px;
+            }
+            .search-box {
+                flex-direction: row;
+            }
+            .search-box input {
+                padding: 10px 12px;
+            }
+            .search-box .btn {
+                padding: 10px 14px;
+            }
+            .entry {
+                padding: 10px;
+            }
+            .entry-type {
+                font-size: 0.7rem;
+                padding: 3px 10px;
+            }
+            .entry-time {
+                font-size: 0.8rem;
+            }
+            .entry-content {
+                font-size: 0.9rem;
+            }
+            .entry-actions {
+                gap: 6px;
+            }
+            .filter-tag {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            .tag-chip {
+                padding: 4px 10px;
+                font-size: 0.75rem;
+            }
+            .recorder-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 1.3rem;
+            }
+            .recorder-time {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .tab {
+                padding: 8px 6px;
+                font-size: 0.75rem;
+            }
+            .calendar-day {
+                font-size: 0.75rem;
+                min-height: 26px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .calendar-day:hover {
+                background: #f0f0f0;
+            }
+            .calendar-header button:hover {
+                background: #e0e0e0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>家庭日志</h1>
+        
+        <div class="card">
+            <div class="calendar-header">
+                <button onclick="changeMonth(-1)">&lt;</button>
+                <span class="calendar-month" id="calendarMonth"></span>
+                <button onclick="changeMonth(1)">&gt;</button>
+            </div>
+            <div class="calendar">
+                <div class="calendar-weekdays">
+                    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                </div>
+                <div class="calendar-days" id="calendarDays"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="date-display">
+                <input type="date" id="dateInput">
+                <button class="btn btn-secondary" onclick="goToToday()">今天</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">添加记录</span>
+            </div>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('text')">文本</button>
+                <button class="tab" onclick="switchTab('photo')">照片</button>
+                <button class="tab" onclick="switchTab('video')">视频</button>
+                <button class="tab" onclick="switchTab('audio')">录音</button>
+            </div>
+            
+            <div id="textInput" class="input-area active">
+                <textarea id="textContent" placeholder="写下今天的故事..."></textarea>
+                <div class="tag-input-container">
+                    <input type="text" id="textTags" placeholder="添加标签（回车添加）">
+                </div>
+                <div id="textTagList" style="margin-top: 8px;"></div>
+                <button class="btn btn-primary btn-block" style="margin-top: 10px;" onclick="addTextEntry()">保存文本</button>
+            </div>
+            
+            <div id="photoInput" class="input-area">
+                <div class="file-input-wrapper">
+                    <button class="btn btn-primary">选择照片</button>
+                    <input type="file" accept="image/*" onchange="previewFile(this, 'photo')">
+                </div>
+                <div class="tag-input-container">
+                    <input type="text" id="photoTags" placeholder="添加标签（回车添加）">
+                </div>
+                <div id="photoTagList" style="margin-top: 8px;"></div>
+                <div id="photoPreview" class="preview-container"></div>
+            </div>
+            
+            <div id="videoInput" class="input-area">
+                <div class="file-input-wrapper">
+                    <button class="btn btn-primary">选择视频</button>
+                    <input type="file" accept="video/*" onchange="previewFile(this, 'video')">
+                </div>
+                <div class="tag-input-container">
+                    <input type="text" id="videoTags" placeholder="添加标签（回车添加）">
+                </div>
+                <div id="videoTagList" style="margin-top: 8px;"></div>
+                <div id="videoPreview" class="preview-container"></div>
+            </div>
+
+            <div id="audioInput" class="input-area">
+                <div class="recorder-container">
+                    <button class="recorder-btn" id="recorderBtn" onclick="toggleRecording()">
+                        <svg id="micIcon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                        <svg id="stopIcon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                            <rect x="6" y="6" width="12" height="12" rx="2"/>
+                        </svg>
+                    </button>
+                    <div class="recorder-time" id="recorderTime">00:00</div>
+                    <div class="recorder-status" id="recorderStatus">点击开始录音</div>
+                </div>
+                <div class="tag-input-container">
+                    <input type="text" id="audioTags" placeholder="添加标签（回车添加）">
+                </div>
+                <div id="audioTagList" style="margin-top: 8px;"></div>
+                <div id="audioPreview" class="recorder-preview"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title" id="entriesTitle">今日记录</span>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索记录..." oninput="searchEntries()">
+                <button class="btn btn-secondary" onclick="clearSearch()">清除</button>
+            </div>
+            <div class="filter-tags" id="filterTags"></div>
+            <div id="entriesList" class="entries-list"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="card-title">编辑记录</span>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="editContent"></textarea>
+                <div class="tag-input-container" style="margin-top: 10px;">
+                    <input type="text" id="editTags" placeholder="添加标签（回车添加）">
+                </div>
+                <div id="editTagList" style="margin-top: 8px;"></div>
+                <input type="hidden" id="editEntryId">
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="flex:1;" onclick="saveEdit()">保存</button>
+                    <button class="btn btn-secondary" style="flex:1;" onclick="closeEditModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="card-title">确认删除</span>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这条记录吗？此操作无法撤销。</p>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn btn-danger" style="flex:1;" onclick="confirmDelete()">删除</button>
+                    <button class="btn btn-secondary" style="flex:1;" onclick="closeDeleteModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DB_NAME = 'FamilyJournalDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'entries';
+        
+        let db;
+        let currentDate = new Date().toISOString().split('T')[0];
+        let currentMonth = new Date();
+        let entriesCache = {};
+        let allTags = new Set();
+        let activeFilterTag = null;
+        let searchQuery = '';
+        let pendingDeleteId = null;
+        let tempTags = { text: [], photo: [], video: [], audio: [] };
+        let editTags = [];
+
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingTimer = null;
+        let recordingSeconds = 0;
+        let recordedAudioData = null;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        const store = database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                        store.createIndex('date', 'date', { unique: false });
+                        store.createIndex('type', 'type', { unique: false });
+                    }
+                };
+            });
+        }
+
+        function getEntriesByDate(date) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const index = store.index('date');
+                const request = index.getAll(date);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function getAllEntries() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function addEntry(entry) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.add(entry);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function updateEntry(entry) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put(entry);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function deleteEntryFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(id);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function compressImage(dataUrl, maxWidth = 1200, quality = 0.7) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.src = dataUrl;
+            });
+        }
+
+        async function init() {
+            await initDB();
+            
+            document.getElementById('dateInput').value = currentDate;
+            document.getElementById('dateInput').addEventListener('change', function() {
+                currentDate = this.value;
+                const dateParts = currentDate.split('-');
+                currentMonth = new Date(dateParts[0], dateParts[1] - 1, 1);
+                renderCalendar();
+                renderEntries();
+            });
+            
+            setupTagInputs();
+            await loadAllTags();
+            await renderCalendar();
+            await renderEntries();
+        }
+
+        function setupTagInputs() {
+            const tagInputs = ['textTags', 'photoTags', 'videoTags', 'audioTags', 'editTags'];
+            const tagKeys = ['text', 'photo', 'video', 'audio', 'edit'];
+            
+            tagInputs.forEach((inputId, index) => {
+                const input = document.getElementById(inputId);
+                const key = tagKeys[index];
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const tag = this.value.trim();
+                        if (tag) {
+                            if (key === 'edit') {
+                                if (!editTags.includes(tag)) {
+                                    editTags.push(tag);
+                                    renderEditTags();
+                                }
+                            } else {
+                                if (!tempTags[key].includes(tag)) {
+                                    tempTags[key].push(tag);
+                                    renderTempTags(key);
+                                }
+                            }
+                            this.value = '';
+                        }
+                    }
+                });
+            });
+        }
+
+        function renderTempTags(type) {
+            const listId = type + 'TagList';
+            const list = document.getElementById(listId);
+            if (!list) return;
+            list.innerHTML = tempTags[type].map((tag, index) => `
+                <span class="tag-chip">
+                    ${escapeHtml(tag)}
+                    <button onclick="removeTempTag('${type}', ${index})">&times;</button>
+                </span>
+            `).join(' ');
+        }
+
+        function removeTempTag(type, index) {
+            tempTags[type].splice(index, 1);
+            renderTempTags(type);
+        }
+
+        function renderEditTags() {
+            const list = document.getElementById('editTagList');
+            list.innerHTML = editTags.map((tag, index) => `
+                <span class="tag-chip">
+                    ${escapeHtml(tag)}
+                    <button onclick="removeEditTag(${index})">&times;</button>
+                </span>
+            `).join(' ');
+        }
+
+        function removeEditTag(index) {
+            editTags.splice(index, 1);
+            renderEditTags();
+        }
+
+        async function loadAllTags() {
+            const entries = await getAllEntries();
+            allTags.clear();
+            entries.forEach(entry => {
+                if (entry.tags) {
+                    entry.tags.forEach(tag => allTags.add(tag));
+                }
+            });
+            renderFilterTags();
+        }
+
+        function renderFilterTags() {
+            const container = document.getElementById('filterTags');
+            if (allTags.size === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = `<button class="filter-tag ${!activeFilterTag ? 'active' : ''}" onclick="filterByTag(null)">全部</button>` +
+                Array.from(allTags).map(tag => `
+                    <button class="filter-tag ${activeFilterTag === tag ? 'active' : ''}" onclick="filterByTag('${escapeHtml(tag)}')">${escapeHtml(tag)}</button>
+                `).join('');
+        }
+
+        function filterByTag(tag) {
+            activeFilterTag = tag;
+            renderFilterTags();
+            renderEntries();
+        }
+
+        async function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            document.getElementById('calendarMonth').textContent = `${year}年${month + 1}月`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            
+            const allEntries = await getAllEntries();
+            const entriesByDate = {};
+            allEntries.forEach(entry => {
+                if (entry.date) {
+                    if (!entriesByDate[entry.date]) {
+                        entriesByDate[entry.date] = [];
+                    }
+                    entriesByDate[entry.date].push(entry);
+                }
+            });
+            
+            let html = '';
+            
+            for (let i = startDay - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                html += `<div class="calendar-day other-month"><span class="day-number">${day}</span></div>`;
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = dateStr === today;
+                const isSelected = dateStr === currentDate;
+                const dayEntries = entriesByDate[dateStr] || [];
+                
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (isSelected) classes += ' selected';
+                
+                let thumbnailsHtml = '';
+                if (dayEntries.length > 0) {
+                    const thumbnails = [];
+                    const maxThumbs = 4;
+                    
+                    for (let i = 0; i < Math.min(dayEntries.length, maxThumbs); i++) {
+                        const entry = dayEntries[i];
+                        if (entry.type === 'photo') {
+                            thumbnails.push(`<img src="${entry.content}" class="thumb-photo" alt="">`);
+                        } else if (entry.type === 'text') {
+                            thumbnails.push(`<div class="thumb-icon text-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>`);
+                        } else if (entry.type === 'video') {
+                            thumbnails.push(`<div class="thumb-icon video-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>`);
+                        } else if (entry.type === 'audio') {
+                            thumbnails.push(`<div class="thumb-icon audio-icon"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div>`);
+                        }
+                    }
+                    
+                    if (thumbnails.length > 0) {
+                        thumbnailsHtml = `<div class="day-thumbnails">${thumbnails.join('')}</div>`;
+                    }
+                }
+                
+                html += `<div class="${classes}" onclick="selectDate('${dateStr}')"><span class="day-number">${day}</span>${thumbnailsHtml}</div>`;
+            }
+            
+            const remainingDays = 42 - (startDay + daysInMonth);
+            for (let day = 1; day <= remainingDays; day++) {
+                html += `<div class="calendar-day other-month"><span class="day-number">${day}</span></div>`;
+            }
+            
+            document.getElementById('calendarDays').innerHTML = html;
+        }
+
+        async function selectDate(dateStr) {
+            currentDate = dateStr;
+            document.getElementById('dateInput').value = dateStr;
+            await renderCalendar();
+            await renderEntries();
+        }
+
+        async function changeMonth(delta) {
+            currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + delta, 1);
+            await renderCalendar();
+        }
+
+        async function goToToday() {
+            currentDate = new Date().toISOString().split('T')[0];
+            currentMonth = new Date();
+            document.getElementById('dateInput').value = currentDate;
+            await renderCalendar();
+            await renderEntries();
+        }
+
+        function switchTab(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.input-area').forEach(a => a.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(type + 'Input').classList.add('active');
+            
+            document.getElementById('photoPreview').innerHTML = '';
+            document.getElementById('videoPreview').innerHTML = '';
+            document.getElementById('audioPreview').innerHTML = '';
+            
+            if (type !== 'audio' && isRecording) {
+                stopRecording();
+            }
+        }
+
+        async function previewFile(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const previewDiv = document.getElementById(type + 'Preview');
+                
+                if (type === 'photo') {
+                    previewDiv.innerHTML = `<p style="color: #888; margin-bottom: 10px;">压缩中...</p>`;
+                    const compressed = await compressImage(e.target.result);
+                    previewDiv.innerHTML = `
+                        <img src="${compressed}" style="max-width: 100%; border-radius: 8px;">
+                        <br><br>
+                        <button class="btn btn-primary btn-block" onclick="addMediaEntry('photo', '${compressed}')">保存照片</button>
+                    `;
+                } else {
+                    previewDiv.innerHTML = `
+                        <video src="${e.target.result}" controls style="max-width: 100%; border-radius: 8px;"></video>
+                        <br><br>
+                        <button class="btn btn-primary btn-block" onclick="addMediaEntry('video', '${e.target.result}')">保存视频</button>
+                    `;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function toggleRecording() {
+            if (isRecording) {
+                await stopRecording();
+            } else {
+                await startRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        recordedAudioData = e.target.result;
+                        showAudioPreview();
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                recordingSeconds = 0;
+                
+                document.getElementById('recorderBtn').classList.add('recording');
+                document.getElementById('micIcon').style.display = 'none';
+                document.getElementById('stopIcon').style.display = 'block';
+                document.getElementById('recorderStatus').textContent = '正在录音...';
+                
+                recordingTimer = setInterval(() => {
+                    recordingSeconds++;
+                    const mins = Math.floor(recordingSeconds / 60).toString().padStart(2, '0');
+                    const secs = (recordingSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById('recorderTime').textContent = `${mins}:${secs}`;
+                }, 1000);
+                
+            } catch (err) {
+                alert('无法访问麦克风，请确保已授予权限');
+                console.error('录音错误:', err);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                clearInterval(recordingTimer);
+                
+                document.getElementById('recorderBtn').classList.remove('recording');
+                document.getElementById('micIcon').style.display = 'block';
+                document.getElementById('stopIcon').style.display = 'none';
+            }
+        }
+
+        function showAudioPreview() {
+            const previewDiv = document.getElementById('audioPreview');
+            previewDiv.innerHTML = `
+                <audio src="${recordedAudioData}" controls></audio>
+                <div class="recorder-actions">
+                    <button class="btn btn-primary" onclick="saveAudioEntry()">保存录音</button>
+                    <button class="btn btn-secondary" onclick="discardAudio()">重新录制</button>
+                </div>
+            `;
+            document.getElementById('recorderStatus').textContent = '录音完成，点击保存或重新录制';
+        }
+
+        function discardAudio() {
+            recordedAudioData = null;
+            document.getElementById('audioPreview').innerHTML = '';
+            document.getElementById('recorderTime').textContent = '00:00';
+            document.getElementById('recorderStatus').textContent = '点击开始录音';
+        }
+
+        async function saveAudioEntry() {
+            if (!recordedAudioData) return;
+            
+            await addEntry({
+                id: Date.now(),
+                date: currentDate,
+                type: 'audio',
+                content: recordedAudioData,
+                duration: recordingSeconds,
+                tags: [...tempTags.audio],
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            recordedAudioData = null;
+            document.getElementById('audioPreview').innerHTML = '';
+            document.getElementById('recorderTime').textContent = '00:00';
+            document.getElementById('recorderStatus').textContent = '点击开始录音';
+            tempTags.audio = [];
+            renderTempTags('audio');
+            await loadAllTags();
+            await renderCalendar();
+            await renderEntries();
+        }
+
+        async function addTextEntry() {
+            const content = document.getElementById('textContent').value.trim();
+            if (!content) return;
+
+            await addEntry({
+                id: Date.now(),
+                date: currentDate,
+                type: 'text',
+                content: content,
+                tags: [...tempTags.text],
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            document.getElementById('textContent').value = '';
+            tempTags.text = [];
+            renderTempTags('text');
+            await loadAllTags();
+            await renderCalendar();
+            await renderEntries();
+        }
+
+        async function addMediaEntry(type, data) {
+            await addEntry({
+                id: Date.now(),
+                date: currentDate,
+                type: type,
+                content: data,
+                tags: [...tempTags[type]],
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            });
+
+            document.getElementById(type + 'Preview').innerHTML = '';
+            tempTags[type] = [];
+            renderTempTags(type);
+            await loadAllTags();
+            await renderCalendar();
+            await renderEntries();
+        }
+
+        function searchEntries() {
+            searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            renderEntries();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            activeFilterTag = null;
+            renderFilterTags();
+            renderEntries();
+        }
+
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        async function renderEntries() {
+            const list = document.getElementById('entriesList');
+            const dateObj = new Date(currentDate);
+            const today = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('entriesTitle').textContent = 
+                currentDate === today ? '今日记录' : 
+                `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日的记录`;
+
+            let entries = await getEntriesByDate(currentDate);
+            entriesCache[currentDate] = entries;
+            
+            if (searchQuery) {
+                entries = entries.filter(entry => {
+                    if (entry.type === 'text' && entry.content.toLowerCase().includes(searchQuery)) {
+                        return true;
+                    }
+                    if (entry.tags && entry.tags.some(tag => tag.toLowerCase().includes(searchQuery))) {
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            
+            if (activeFilterTag) {
+                entries = entries.filter(entry => {
+                    return entry.tags && entry.tags.includes(activeFilterTag);
+                });
+            }
+
+            if (entries.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <p>${searchQuery || activeFilterTag ? '没有找到匹配的记录' : '暂无记录'}</p>
+                        <p style="font-size: 0.85rem; margin-top: 5px;">${searchQuery || activeFilterTag ? '试试其他关键词' : '添加你的第一条记录吧！'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            entries.sort((a, b) => b.id - a.id);
+
+            list.innerHTML = entries.map(entry => {
+                let content = '';
+                if (entry.type === 'text') {
+                    content = `<div style="white-space: pre-wrap;">${escapeHtml(entry.content)}</div>`;
+                } else if (entry.type === 'photo') {
+                    content = `<img src="${entry.content}" alt="照片" onclick="openImageModal('${entry.content}')">`;
+                } else if (entry.type === 'video') {
+                    content = `<video src="${entry.content}" controls></video>`;
+                } else if (entry.type === 'audio') {
+                    const duration = entry.duration ? formatDuration(entry.duration) : '';
+                    content = `
+                        <audio src="${entry.content}" controls></audio>
+                        ${duration ? `<div style="font-size: 0.8rem; color: #888; margin-top: 5px;">时长: ${duration}</div>` : ''}
+                    `;
+                }
+
+                const typeLabels = { text: '文本', photo: '照片', video: '视频', audio: '录音' };
+                const tagsHtml = entry.tags && entry.tags.length > 0 
+                    ? `<div class="entry-tags">${entry.tags.map(tag => `<span class="entry-tag">${escapeHtml(tag)}</span>`).join('')}</div>` 
+                    : '';
+                
+                return `
+                    <div class="entry">
+                        <div class="entry-header">
+                            <div class="entry-meta">
+                                <span class="entry-type type-${entry.type}">${typeLabels[entry.type]}</span>
+                                <span class="entry-time">${entry.time}</span>
+                            </div>
+                        </div>
+                        ${tagsHtml}
+                        <div class="entry-content">${content}</div>
+                        <div class="entry-actions">
+                            <button class="btn btn-secondary btn-small" onclick="openEditModal(${entry.id})">编辑</button>
+                            <button class="btn btn-danger btn-small" onclick="openDeleteModal(${entry.id})">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openEditModal(id) {
+            const entries = await getEntriesByDate(currentDate);
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+            
+            document.getElementById('editEntryId').value = id;
+            document.getElementById('editContent').value = entry.content || '';
+            editTags = entry.tags ? [...entry.tags] : [];
+            renderEditTags();
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editTags = [];
+        }
+
+        async function saveEdit() {
+            const id = parseInt(document.getElementById('editEntryId').value);
+            const content = document.getElementById('editContent').value.trim();
+            
+            const entries = await getEntriesByDate(currentDate);
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+            
+            entry.content = content;
+            entry.tags = [...editTags];
+            
+            await updateEntry(entry);
+            closeEditModal();
+            await loadAllTags();
+            await renderEntries();
+        }
+
+        function openDeleteModal(id) {
+            pendingDeleteId = id;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        async function confirmDelete() {
+            if (pendingDeleteId) {
+                await deleteEntryFromDB(pendingDeleteId);
+                closeDeleteModal();
+                await loadAllTags();
+                await renderCalendar();
+                await renderEntries();
+            }
+        }
+
+        function openImageModal(src) {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.style.background = 'rgba(0,0,0,0.9)';
+            modal.innerHTML = `
+                <img src="${src}" style="max-width: 90%; max-height: 90%; border-radius: 8px;">
+            `;
+            modal.onclick = () => modal.remove();
+            document.body.appendChild(modal);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        init();
+    </script>
+</body>
 </html>
